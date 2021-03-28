@@ -50,10 +50,6 @@
         <!-- <property name="mapperLocations" value="classpath*:net/hackyle/mapper/*.xml"/>-->
     </bean>
 
-
-    <!--开启注解扫描-->
-    <context:component-scan base-package="net.hackyle.mapper" />
-
     <!--配置mapper接口也可以注入到IOC容器中-->
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>

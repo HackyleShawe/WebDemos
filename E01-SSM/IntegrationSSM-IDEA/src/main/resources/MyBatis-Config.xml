@@ -12,8 +12,8 @@
         <setting name="" value=""/>
     </settings>-->
 
-    <mappers>
+<!--     <mappers>
         <mapper resource="net/hackyle/mapper/PersonMapper.xml"/>
-    </mappers>
+    </mappers> -->
 
 </configuration>
