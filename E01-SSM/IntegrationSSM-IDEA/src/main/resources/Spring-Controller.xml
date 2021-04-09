@@ -36,4 +36,8 @@
         </property>
     </bean>
 
+	<!--加载RequestMappingHandlerMapping（处理映射器）和RequestMappingHandlerAdapter（处理适配器）-->
+    <!-- 注意conversion-service中的值是自定义类型转换器Bean的ID -->
+    <mvc:annotation-driven conversion-service="conversionServiceFactoryBean" />
+
 </beans>

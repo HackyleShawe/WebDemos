@@ -7,7 +7,7 @@
 
     <!--void addPerson(Person person);-->
     <insert id="addPerson" parameterType="net.hackyle.pojo.Person">
-        insert into person(id,name,age,sex,address,tel,email) values (#{id},#{name},#{age},#{sex},#{address},#{tel},#{email})
+        insert into person(name,age,sex,birthday,address,tel,email) values (#{name},#{age},#{sex},#{birthday},#{address},#{tel},#{email})
     </insert>
 
     <!--void deletePerson(int id);-->
