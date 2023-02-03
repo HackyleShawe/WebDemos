@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <!--noindex,nofllow：禁止抓取本页，同时禁止跟踪本页中的链接，可简写成none-->
+  <meta name="robots" content="noindex,nofllow">
+
+  <meta name="author" content="Hackyle; Kyle Shawe">
+  <meta name="reply-to" content="kyleshawe@outlook.com;1617358182@qq.com">
+  <meta name="generator" content="Sublime Text 3; VSCode">
+  <meta name="copyright" content="Copy Right: 2022 HACKYLE. All rights reserved">
+  <!-- 给网站设置图标 -->
+  <!-- <link rel="icon" href="/img/favicon.ico"> -->
+
+  <title>Login</title>
+
+  <style>
+    body {
+      background: #e35869;
+    }
+
+    .login-form {
+      background: #fff;
+      /*去掉宽度，就能让样式适配移动端*/
+      width: 400px;
+      margin: 65px auto;
+      display: -webkit-box;
+      display: flex;
+      -webkit-box-orient: vertical;
+      -webkit-box-direction: normal;
+      flex-direction: column;
+      border-radius: 4px;
+      box-shadow: 0 2px 25px rgba(0, 0, 0, 0.2);
+    }
+    .login-form h1 {
+      padding: 35px 35px 0 35px;
+      font-weight: 300;
+    }
+    .login-form .content {
+      padding: 35px;
+      text-align: center;
+    }
+    .login-form .input-field {
+      padding: 12px 5px;
+    }
+    .login-form .input-field input {
+      font-size: 16px;
+      display: block;
+      font-family: 'Rubik', sans-serif;
+      width: 100%;
+      padding: 10px 1px;
+      border: 0;
+      border-bottom: 1px solid #747474;
+      outline: none;
+      -webkit-transition: all .2s;
+      transition: all .2s;
+    }
+    .login-form .action {
+      display: -webkit-box;
+      display: flex;
+      -webkit-box-orient: horizontal;
+      -webkit-box-direction: normal;
+      flex-direction: row;
+    }
+    .login-form .action button {
+      width: 100%;
+      border: none;
+      padding: 18px;
+      font-family: 'Rubik', sans-serif;
+      cursor: pointer;
+      text-transform: uppercase;
+      background: #e8e9ec;
+      color: #777;
+      border-bottom-left-radius: 4px;
+      border-bottom-right-radius: 0;
+      letter-spacing: 0.2px;
+      outline: 0;
+      -webkit-transition: all .3s;
+      transition: all .3s;
+    }
+  </style>
+</head>
+
+<body>
+<div class="login-form">
+  <h1>Login</h1>
+  <div class="content">
+    <div class="input-field">
+      <input type="text" placeholder="Username" id="username" value="hackyle">
+    </div>
+    <div class="input-field">
+      <input type="password" placeholder="Password" id="password" value="kyleshawe">
+    </div>
+    <div class="input-field">
+      <input type="text" placeholder="Code" id="code">
+      <img alt="验证码" id="codeImg" src="" >
+      <div>
+        <a>看不清？点击图片刷新一下</a>
+      </div>
+    </div>
+    <!--<a href="#" class="link">Forgot Your Password?</a>-->
+  </div>
+  <div class="action">
+    <button id="reset">Reset</button>
+    <button id="submit">Sign in</button>
+  </div>
+</div>
+
+</body>
+
+<script src="plugin/jquery-1.12.4.min.js"></script>
+<script>
+  $(function () {
+    fetchCode()
+  })
+
+  //请求后端获取验证码图片
+  function fetchCode() {
+    $.get("/verificationCode", function (data) {
+      //console.log(data)
+      $("#codeImg").attr("src", data.data.code)
+      //把UUID暂存起来，在请求后端的验证码正确性校验接口时需要携带
+      window.localStorage.setItem("uuid", data.data.uuid)
+    })
+  }
+  //点击刷新
+  $("#codeImg").click(function () {
+    fetchCode()
+  })
+
+  //重置
+  $("#reset").click(function () {
+    $("#username").val('')
+    $("#password").val('')
+    $("#code").val('')
+  })
+
+  //提交
+  $("#submit").click(function () {
+    let username = $("#username").val()
+    let password = $("#password").val()
+    let code = $("#code").val()
+
+    //先检查是否已填数据，以及其长度是否符合
+    if(username.length<3 || password.length<8 || code.length!==6) {
+      alert("Username或Password或Code填写不合法，请检查")
+      return
+    }
+
+    let uuid = window.localStorage.getItem("uuid")
+    let data = {"username": username, "password": password, "code": code, "uuid":uuid}
+    $.ajax({
+      url: "/login",
+      data: JSON.stringify(data),
+      method: "post",
+      dataType: "json",
+      contentType: 'application/json',
+      success: function (data) {
+        //console.log(data)
+        if(data.state) { //登录成功
+          //将token存储在本地
+          window.localStorage.setItem("token", data.data.token)
+          location.assign(location.protocol + "//" + location.host + "?token="+data.data.token) //跳转到首页
+
+        } else { //登录失败，清除密码框和验证码框内的内容，显示失败原因
+          $("#password").val('')
+          $("#code").val('')
+          alert(data.message)
+        }
+      }
+    })
+  });
+</script>
+</html>
